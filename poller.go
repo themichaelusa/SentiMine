@@ -114,8 +114,8 @@ func (ArticleSearch) getArticles(ch chan<- RoutineResult, apikey string) {
 }
 
 func (ArticleSearch) toSTDOUT(){
-	fmt.Println("@!@")
+	fmt.Println("@S@")
 	fmt.Println(a.timestamp)
 	fmt.Println(a.articles)
-	fmt.Println("@!@")
+	fmt.Println("@E@")
 }
