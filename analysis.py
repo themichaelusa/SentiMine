@@ -16,9 +16,30 @@ def findSynonym(word):
 class SentimentAnalysis:
 	def __init__(self):
 		self.words = {}
+		self.availible_words = []
 		self.trainingset = []
 		self.createTrainingSet()
-		self.
+		self.classifer = nltk.NaiveBayesClassifier
+		self.train()
+
+	def tokenize_sentence(self, sentence): 
+		words = sentence.split(" ")
+		tokenized = {}
+		for word in words:
+			word_lc = word.lower()
+			try:
+				tokenized.update({word_lc: self.words[word_lc]})
+			except KeyError as e:
+				##TODO: key error exception --> look for synonyms (DONE)
+				synons = findSynonym(word_lc)
+				match = None
+				for w in synons:
+					if w in self.availible_words:
+						match = w
+						break
+				if match is not None:
+					tokenized.update({word_lc: self.words[match]})
+		return tokenized
 
 	def createTrainingSet(self):
 		### populate words 
@@ -37,10 +58,19 @@ class SentimentAnalysis:
 
 		push_lexicon("lexicons/positive-words.txt", "pos")
 		push_lexicon("lexicons/negative-words.txt", "neg")
+		self.availible_words = self.words.keys()
+
+		def tokenize_with_label(sentiment, label):
+			out = None
+			if label == "pos":
+				return bool(sentiment)
+			elif label == "neg":
+				return bool(not sentiment)
 
 		### load & tokenize pos/neg sentences 
 		def load_training_data(name):
 			file = open(name, "r", encoding="ISO-8859-1")
+
 			for line in file:
 				split_ln = line.split(" ")
 				sent_score = split_ln[len(split_ln)-1]
@@ -50,40 +80,22 @@ class SentimentAnalysis:
 				else:
 					label = "neg"
 
-				token = {}
-				for word in split_ln:
-					##TODO: key error exception --> look for synonyms
-					try:
-						sentiment = self.words[word]
-						out = None
-						if label == "pos":
-							out = {word: bool(sentiment)}
-						elif label == "neg":
-							out = {word: bool(not sentiment)}
-						token.update(out)
-					except KeyError as e:
-						synons = findSynonym(word)
-						match = None
-						allkeys = self.words.keys()
-						for w in synons:
-							if w in allkeys:
-								match = w
-								break
-						if match is not None:
-							sentiment_match = self.words[match]
-							out_match = None
-							if label == "pos":
-								out_match = {match: bool(sentiment_match)}
-							elif label == "neg":
-								out_match = {match: bool(not sentiment_match)}
-							token.update(out_match)
+				token_wrt_label = tokenize_with_label
+				tokenized_sentence = self.tokenize_sentence(line)
+				tokened_and_labelled = {w:token_wrt_label(s, label) for w,s in tokenized_sentence.items()}
 
-				if token != {}:
-					self.trainingset.append((token, label))
+				if tokened_and_labelled != {}:
+					self.trainingset.append((dict(tokened_and_labelled), label))
 
 		load_training_data('sentences/yelp_labelled.txt')
 		load_training_data('sentences/imdb_labelled.txt')
 		load_training_data('sentences/amazon_cells_labelled.txt')
+
+	def train(self):
+		self.classifer.train(self.trainingset)
+
+	def classify(self): 
+		pass
 
 def buildAnalysisProfile(text):
 
@@ -121,6 +133,4 @@ def buildAnalysisProfile(text):
 				analysisDict["Verb-Adj"].append(analysis.tags[idx][0] + " " + analysis.tags[idx+1][0])
 
 def main(): pass
-
-
 
