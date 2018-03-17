@@ -1,25 +1,24 @@
-
-"""
-from newsapi.sources import Sources
-s = Sources(API_KEY=key)
-
-
-from newsapi.articles import articles
-
-a = Articles(API_KEY=key)
-popular = a.get_by_popularity()
-"""
-
-NEWS_API_HEADLINES = "https://newsapi.org/v2/top-headlines?q="
-NEWS_API_KEY_QUERY = "&apiKey="
-
-import requests
+import grequests
+import datetime
 import json
 
-def getArticles(keyword):
-	url = NEWS_API_HEADLINES + keyword + NEWS_API_KEY_QUERY + key
-	data = requests.get(url).json()
-	print(data)
+class Poller:
+	def __init__(self, apikey, keywords):
+		self.apikey = apikey
+		self.keywords = keywords
+		#self.NEWS_API_HEADLINES = "https://newsapi.org/v2/top-headlines?country=us&q={}&language=en"
+		self.NEWS_API_EVERYTHING = "https://newsapi.org/v2/everything?q=+{}&langauge=en"
+		self.NEWS_API_DATES = "&from={}&to={}"
+		self.NEWS_API_KEY_QUERY = "&pageSize=100&sortBy=relevancy&apiKey=" + apikey
+		#self.NEWS_API_KEY_QUERY = "&apiKey=" + apikey
 
-getArticles("Infrastructure")
+	def getArticles(self):
+		today = datetime.datetime.today().strftime('%Y-%m-%d')
+		url = self.NEWS_API_DATES.format(today, today) + self.NEWS_API_KEY_QUERY
+		urls = [self.NEWS_API_EVERYTHING.format(kwd) + url for kwd in self.keywords]
+		rs = (grequests.get(u, timeout=.05) for u in urls)
+		data = grequests.map(rs)
+		extract = [d.json() for d in data if d is not None]
+		print(extract)
+
 
