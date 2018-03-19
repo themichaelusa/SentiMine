@@ -38,8 +38,8 @@ class TopicAnalysis:
 
 		# remove punctuation
 		punc = set(punctuation)
-		no_punc = []
 		all_chars = [list(word) for word in words]
+		no_punc = []
 		for char_list in all_chars:
 			no_punc.append("".join([c for c in char_list if c not in punc]))
 
@@ -51,11 +51,11 @@ class TopicAnalysis:
 		lemmatizer = WordNetLemmatizer()
 		return [lemmatizer.lemmatize(word) for word in words]
 
-	def mine_topics(text, num_words=3, num_topics=3, passes=50):
-		tokenized = self.tokenize(text)
+	def mine_topics(self, text, num_words=3, num_topics=3, passes=50):
+		tokenized = [self.tokenize(sentence) for sentence in text]
 		word_dict = self.dictionary(tokenized)
-		term_matrix = [word_dict.word2bow(word) for word in tokenized]
-		ldamodel = self.lda(term_matrix, num_topics=num_topics, id2word=dictionary, passes=passess)
+		term_matrix = [word_dict.doc2bow(word) for word in tokenized]
+		ldamodel = self.lda(term_matrix, num_topics=num_topics, id2word=word_dict, passes=passes)
 		return ldamodel.print_topics(num_topics=num_topics, num_words=num_words)
 
 class SentimentAnalysis:
@@ -63,12 +63,24 @@ class SentimentAnalysis:
 		from nltk.sentiment.vader import SentimentIntensityAnalyzer
 		self.sia = SentimentIntensityAnalyzer()
 
-	def get_text_polarity(text):
-		tokenized = tokenize.sent_tokenize(text)
-		return self.sia.polarity_scores(tokenized)
+	def get_text_polarity(self, text):
+		return self.sia.polarity_scores(text)
 
 
-		
+""" (TEST ANALYSIS.py)
+if __name__ == '__main__':
 
+	doc1 = "Sugar is bad to consume. My sister likes to have sugar, but not my father."
+	doc2 = "My father spends a lot of time driving my sister around to dance practice."
+	doc3 = "Doctors suggest that driving may cause increased stress and blood pressure."
+	doc4 = "Sometimes I feel pressure to perform well at school, but my father never seems to drive my sister to do better."
+	doc5 = "Health experts say that Sugar is not good for your lifestyle."
+	doc_complete = [doc1, doc2, doc3, doc4, doc5]
 
+	ta = TopicAnalysis()
+	print(ta.mine_topics(doc_complete))
+
+	sa = SentimentAnalysis()
+	print(sa.get_text_polarity(doc5))
+"""
 
