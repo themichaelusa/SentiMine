@@ -66,8 +66,18 @@ class SentimentAnalysis:
 	def get_text_polarity(self, text):
 		return self.sia.polarity_scores(text)
 
+	def get_group_polarity(self, keywords, data):
+		group = {}
+		for kwd in keywords:
+			kwd_sent = {}
+			for kwd_tag_text in data:
+				tag, text = kwd_tag_text[1:]
+				kwd_sent.update({tag: self.get_text_polarity(text)})
+			group.update({kwd: kwd_sent})
 
-""" (TEST ANALYSIS.py)
+		return group
+
+"""# (TEST ANALYSIS.py)
 if __name__ == '__main__':
 
 	doc1 = "Sugar is bad to consume. My sister likes to have sugar, but not my father."
