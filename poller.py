@@ -20,16 +20,19 @@ class Poller:
 		data = grequests.map(rs)
 		data_json = [d.json() for d in data if d is not None]
 
-		data_formatted = []
+		data_formatted = {}
 		for kwd_dict, kwd in zip(data_json, keywords):
+			all_descs = []
 			for article in kwd_dict['articles']:
 				src = article['source']['id']
-				data_formatted.append((kwd, src, article['description']))
+				all_descs.append((src, article['description']))
+			data_formatted.update({kwd: all_descs})
 
-		return keywords, data_formatted
+		return data_formatted
 
 """
 from constants import fin_sources
-p = Poller('blah')
+p = Poller('blah', [])
 print(p.get_articles(['AMD', 'trump'], fin_sources))
 """
+

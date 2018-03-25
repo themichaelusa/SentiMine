@@ -7,7 +7,11 @@ if __name__ == '__main__':
 	import api 
 
 	### POSTGRES DB INTEGRATION ###
+	import psycopg2
+	conn = psycopg2.connect("dbname=test user=postgres")
+	cur = conn.cursor()
 
+	# check if tables (sentiment, topics) exist 
 
 	### PARSE CONFIG.TXT FILE ###
 	import sys
@@ -32,12 +36,12 @@ if __name__ == '__main__':
 		# pull kwds from db
 		keywords = []
 		# pass into poller 
-		all_kwds, data = p.get_articles(keywords, fin_sources)
+		data = p.get_articles(keywords, fin_sources)
 
 		### PERFORM SENTIMENT ANALYSIS ###
-		sa_data = sa.get_group_polarity(all_kwds, data)
+		sa_data = sa.get_group_polarity(data)
 		### PERFORM TOPIC ANALYSIS ###
-		ta_data = 
+		ta_data = ta.
 
 
 

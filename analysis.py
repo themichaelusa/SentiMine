@@ -66,18 +66,33 @@ class SentimentAnalysis:
 	def get_text_polarity(self, text):
 		return self.sia.polarity_scores(text)
 
-	def get_group_polarity(self, keywords, data):
+	def get_group_polarity(self, data):
 		group = {}
-		for kwd in keywords:
-			kwd_sent = {}
-			for kwd_tag_text in data:
-				tag, text = kwd_tag_text[1:]
-				kwd_sent.update({tag: self.get_text_polarity(text)})
-			group.update({kwd: kwd_sent})
+		## TODO: order dict by 
+		for kwd, descs in data.items():
+			polarities = {src: self.get_text_polarity(desc) for src, desc in descs}
+			if polarities == {}:
+				continue 
+
+			sent_scores = [list(score.values()) for score in list(polarities.values())]
+			agg_polarity = {'pos': 0.0, 'neu': 0.0, 'neg': 0.0, 'compound': 0.0}
+
+			for sents in sent_scores:
+				agg_polarity['pos'] += sents[0]
+				agg_polarity['neu'] += sents[1]
+				agg_polarity['neg'] += sents[2]
+				agg_polarity['compound'] += sents[3]
+
+			len_sent_scores = len(sent_scores)
+			for key in agg_polarity.keys():
+				agg_polarity[key] /= len_sent_scores
+
+			polarities.update({'agg': agg_polarity})
+			group.update({kwd: polarities})
 
 		return group
 
-"""# (TEST ANALYSIS.py)
+# (TEST ANALYSIS.py)
 if __name__ == '__main__':
 
 	doc1 = "Sugar is bad to consume. My sister likes to have sugar, but not my father."
@@ -87,10 +102,13 @@ if __name__ == '__main__':
 	doc5 = "Health experts say that Sugar is not good for your lifestyle."
 	doc_complete = [doc1, doc2, doc3, doc4, doc5]
 
-	ta = TopicAnalysis()
-	print(ta.mine_topics(doc_complete))
+	#ta = TopicAnalysis()
+	#print(ta.mine_topics(doc_complete))
+
+	import poller
+	from constants import fin_sources
+	p = poller.Poller('bac1eed426c8416992bad5823b10a779', [])
+	data = p.get_articles(['AMD', 'trump'], fin_sources)
 
 	sa = SentimentAnalysis()
-	print(sa.get_text_polarity(doc5))
-"""
-
+	print(sa.get_group_polarity(data))
