@@ -15,9 +15,9 @@ if __name__ == '__main__':
 
 	### PARSE CONFIG.TXT FILE ###
 	import sys
-	file = open(sys.argv[1], 'r')	
+	cfile = open(sys.argv[1], 'r')	
 	key, init_keywords = "", []
-	for line, idx in enumerate(file.readlines()):
+	for line, idx in enumerate(cfile.readlines()):
 		if idx == 0:
 			key.join(line)
 		else:

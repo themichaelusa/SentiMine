@@ -68,9 +68,9 @@ class SentimentAnalysis:
 
 	def get_group_polarity(self, data):
 		group = {}
-		## TODO: order dict by 
+
 		for kwd, descs in data.items():
-			polarities = {src: self.get_text_polarity(desc) for src, desc in descs}
+			polarities = {src: self.get_text_polarity(str(desc)) for src, desc in descs}
 			if polarities == {}:
 				continue 
 
@@ -92,7 +92,9 @@ class SentimentAnalysis:
 
 		return group
 
+
 # (TEST ANALYSIS.py)
+"""
 if __name__ == '__main__':
 
 	doc1 = "Sugar is bad to consume. My sister likes to have sugar, but not my father."
@@ -112,3 +114,4 @@ if __name__ == '__main__':
 
 	sa = SentimentAnalysis()
 	print(sa.get_group_polarity(data))
+"""
