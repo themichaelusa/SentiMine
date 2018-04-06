@@ -11,7 +11,7 @@ adjTags = ["JJ", "JJR", "JJS"]
 nounTags = ["NN", "NNS", "NNP"]
 verbTags = ["VBD", "VBG", "VBN", "VBP", "VBZ"]
 
-def findSynonym(word):
+def find_synonym(word):
 	synonyms = wordnet.synsets(word)
 	lemmas = set(chain.from_iterable([word.lemma_names() for word in synonyms]))
 	return list(lemmas)
@@ -51,12 +51,23 @@ class TopicAnalysis:
 		lemmatizer = WordNetLemmatizer()
 		return [lemmatizer.lemmatize(word) for word in words]
 
-	def mine_topics(self, text, num_words=3, num_topics=3, passes=50):
+	def mine_topics(self, text, num_words=10, num_topics=5, passes=100):
 		tokenized = [self.tokenize(sentence) for sentence in text]
 		word_dict = self.dictionary(tokenized)
 		term_matrix = [word_dict.doc2bow(word) for word in tokenized]
 		ldamodel = self.lda(term_matrix, num_topics=num_topics, id2word=word_dict, passes=passes)
 		return ldamodel.print_topics(num_topics=num_topics, num_words=num_words)
+
+	def group_mine_topics(self, data):
+		group = {}
+		for kwd, descs in data.items():
+			if descs == []:
+				continue
+			kwd_descs = [desc for src, desc in descs]
+			all_desc = " ".join(kwd_descs)
+			topics = self.mine_topics([all_desc])
+			group.update({kwd: topics})
+		return group
 
 class SentimentAnalysis:
 	def __init__(self):
@@ -68,7 +79,6 @@ class SentimentAnalysis:
 
 	def get_group_polarity(self, data):
 		group = {}
-
 		for kwd, descs in data.items():
 			polarities = {src: self.get_text_polarity(str(desc)) for src, desc in descs}
 			if polarities == {}:
@@ -91,27 +101,3 @@ class SentimentAnalysis:
 			group.update({kwd: polarities})
 
 		return group
-
-
-# (TEST ANALYSIS.py)
-"""
-if __name__ == '__main__':
-
-	doc1 = "Sugar is bad to consume. My sister likes to have sugar, but not my father."
-	doc2 = "My father spends a lot of time driving my sister around to dance practice."
-	doc3 = "Doctors suggest that driving may cause increased stress and blood pressure."
-	doc4 = "Sometimes I feel pressure to perform well at school, but my father never seems to drive my sister to do better."
-	doc5 = "Health experts say that Sugar is not good for your lifestyle."
-	doc_complete = [doc1, doc2, doc3, doc4, doc5]
-
-	#ta = TopicAnalysis()
-	#print(ta.mine_topics(doc_complete))
-
-	import poller
-	from constants import fin_sources
-	p = poller.Poller('bac1eed426c8416992bad5823b10a779', [])
-	data = p.get_articles(['AMD', 'trump'], fin_sources)
-
-	sa = SentimentAnalysis()
-	print(sa.get_group_polarity(data))
-"""

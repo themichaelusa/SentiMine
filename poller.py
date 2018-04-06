@@ -47,10 +47,3 @@ class Poller:
 					break
 
 		return data_formatted
-
-# (TEST poller.py)
-"""
-from constants import fin_sources
-p = Poller('blah', [])
-print(p.get_articles(['AMD', 'trump'], fin_sources))
-"""
