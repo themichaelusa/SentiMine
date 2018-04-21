@@ -74,14 +74,15 @@ class SentimentAnalysis:
 		from nltk.sentiment.vader import SentimentIntensityAnalyzer
 		self.sia = SentimentIntensityAnalyzer()
 
-	def get_text_polarity(self, text):
+	def __get_text_polarity(self, text):
 		return self.sia.polarity_scores(text)
 
 	def get_group_polarity(self, data):
 		group = {}
 		for kwd, descs in data.items():
-			polarities = {src: self.get_text_polarity(str(desc)) for src, desc in descs}
+			polarities = {src: self.__get_text_polarity(str(desc)) for src, desc in descs}
 			if polarities == {}:
+				group.update({kwd: polarities})
 				continue 
 
 			sent_scores = [list(score.values()) for score in list(polarities.values())]

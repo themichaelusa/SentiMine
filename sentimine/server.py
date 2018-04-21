@@ -1,5 +1,6 @@
+
 import analysis 
-import poller 
+import poller
 
 if __name__ == '__main__':
 
@@ -41,10 +42,4 @@ if __name__ == '__main__':
 		### PERFORM SENTIMENT ANALYSIS ###
 		sa_data = sa.get_group_polarity(data)
 		### PERFORM TOPIC ANALYSIS ###
-		ta_data = ta.
-
-
-
-
-
-
+		#ta_data = ta.

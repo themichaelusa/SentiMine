@@ -1,7 +1,10 @@
 from flask_api import FlaskAPI
 from flask import request
+import sentimine
+import sys
 
-app = FlaskAPI(__name__)	
+app = FlaskAPI(__name__)
+s = sentimine.SentiMine
 
 @app.route('/addKeyword/<str:key>', methods=['PUT', 'POST'])
 def add_keyword(key):
@@ -23,6 +26,7 @@ def get_topics(key):
 		## PULL FROM DB ##
 
 if __name__ == '__main__':
+	s = s(sys.argv[1]) 
 	app.run(debug=True)
 
 
