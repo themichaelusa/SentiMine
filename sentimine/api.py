@@ -1,3 +1,5 @@
+
+"""
 from flask_api import FlaskAPI
 from flask import request
 import sentimine
@@ -28,7 +30,6 @@ def get_topics(key):
 if __name__ == '__main__':
 	s = s(sys.argv[1]) 
 	app.run(debug=True)
-
-
+"""
 
 		
