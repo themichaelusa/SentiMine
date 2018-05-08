@@ -80,8 +80,7 @@ class SentimentAnalysis:
 	def get_group_polarity(self, data):
 		group = {}
 		for kwd, descs in data.items():
-			polarities = {src: self.__get_text_polarity(str(desc)) 
-				for src, desc in descs.items()}
+			polarities = {src: self.__get_text_polarity(str(desc)) for src, desc in descs.items()}
 			if polarities == {}:
 				group.update({kwd: polarities})
 				continue 

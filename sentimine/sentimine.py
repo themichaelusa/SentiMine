@@ -29,6 +29,7 @@ class SentiMine:
 		data = self.__get_articles(keywords)
 		return self.ta.group_mine_topics(data)
 
+"""
 if __name__ == '__main__':
 	s = SentiMine('bac1eed426c8416992bad5823b10a779')
 	print(s.get_sentiment_dict(['AMD', 'trump', 'fed', 'russia', 'market', 'congress']))

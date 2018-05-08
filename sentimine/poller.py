@@ -1,8 +1,8 @@
-#import grequests
-import requests 
+import grequests
 import datetime
 import json
 
+import requests
 from multiprocessing.dummy import Pool as ThreadPool 
 from itertools import chain 
 
@@ -15,6 +15,8 @@ class Poller:
 
 		from constants import sources as all_srcs
 		self.all_sources = list(chain(*all_srcs.values()))
+		from multiprocessing import cpu_count
+		self.cpu_count = cpu_count()
 
 	def __get_article(self, url_kwd):
 		url, keyword = url_kwd
@@ -28,23 +30,16 @@ class Poller:
 		keywords.extend(self.init_keywords)
 		urls_kwds = [(self.NEWS_API_HEADLINES.format(kwd, source_str) + 
 			self.NEWS_API_KEY_QUERY, kwd) for kwd in set(keywords)]
-		
-		#todo: replace grequests with with thread pool so we can actually track kwd searches
 
-		# get news api data in parallel
-		#all_reqs = (grequests.get(u, timeout=2) for u in urls)
-		#data = grequests.map(all_reqs)
-		#data_json = [d.json() for d in data if d is not None]
-
-		pool = ThreadPool(8)
+		pool = ThreadPool(self.cpu_count)
 		data_json = pool.map(self.__get_article, urls_kwds)
 		pool.close()
 		pool.join()
 
-		# todo: allow for multiple descriptions from same source, concat
+		# todo: allow for multiple descriptions from same source, by pulling news 
+		# for each day since some time in the morning 
 
 		# get all descriptions for each src for each kwd
-		print(data_json)
 		all_descs = {}
 		for kwd, kwd_dict in data_json:
 			kwd_descs = {}
@@ -52,27 +47,6 @@ class Poller:
 				src = article['source']['id']
 				desc = str(article['description']).lower()
 				kwd_descs[src] = desc
-
-			#todo: add missing sources to dict to preserve consistency on user end 
-			#missing = list(set(self.all_sources) - set(kwd_descs.keys()))
-			#print(missing)
 			all_descs[kwd] = kwd_descs
 
-		print(all_descs)
-
-	"""
-	# match descriptions with keywords
-	data_formatted = {k: [] for k in keywords}
-	for kwd_descs in all_descs:
-		next_desc = False
-		for src, desc in kwd_descs.items():
-			for k in keywords:
-				if desc.find(k) != -1:
-					data_formatted[k] = kwd_descs
-					next_desc = True
-					break
-			if next_desc:
-				break
-	"""
-
-		#return data_formatted
+		return all_descs
